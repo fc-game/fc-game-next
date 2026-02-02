@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import config from "@/config";
+import config from "@/lib/config";
 import RomLibrary from "@/lib/romLibrary";
 
 /* ================== 类型 ================== */

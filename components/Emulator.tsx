@@ -1,4 +1,3 @@
-// components/Emulator.tsx
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
@@ -8,9 +7,8 @@ import Speakers from "@/components/Speakers";
 import FrameTimer from "@/components/FrameTimer";
 import GamepadController from "@/components/GamepadController";
 import KeyboardController from "@/components/KeyboardController";
-import "@/components/Emulator.css";
+import "@/styles/Emulator.css";
 
-// 动态导入需要客户端环境的组件
 interface EmulatorProps {
   romData: ArrayBuffer | string;
   paused?: boolean;
@@ -66,22 +64,17 @@ const Emulator: React.FC<EmulatorProps> = ({
   });
 
   // 初始化模拟器
-  const initEmulator = useCallback(() => {
-    if (typeof window === "undefined") return;
-
+  const initEmulator = useCallback(async () => {
     // 初始化扬声器
     speakersRef.current = new Speakers();
-
     // 初始化 NES
     nesRef.current = new NES({
       onFrame: (buffer: any) => screenRef.current?.setBuffer(buffer),
-      onAudioSample: (sample: number) =>
-        speakersRef.current?.writeSample(sample),
+      onAudioSample: (l: number, r: number) => {
+        speakersRef.current.current?.pushSample(l, r);
+      },
       sampleRate: speakersRef.current?.getSampleRate() || 44100,
     });
-
-    // 调试用
-    (window as any).nes = nesRef.current;
 
     // 初始化帧计时器
     frameTimerRef.current = new FrameTimer({
@@ -395,6 +388,9 @@ const Emulator: React.FC<EmulatorProps> = ({
 
   // 组件挂载
   useEffect(() => {
+    // 初始化模拟器
+    initEmulator();
+
     // 初始化摇杆几何信息
     if (joystickBaseRef.current) {
       const baseRect = joystickBaseRef.current.getBoundingClientRect();
@@ -405,9 +401,6 @@ const Emulator: React.FC<EmulatorProps> = ({
         baseRect.top + baseRect.height / 2;
       joystickGeometryRef.current.baseRadius = baseRect.width / 1.4;
     }
-
-    // 初始化模拟器
-    initEmulator();
 
     // 添加触摸事件监听
     if (isMobile) {
@@ -492,7 +485,7 @@ const Emulator: React.FC<EmulatorProps> = ({
   }, [isMobile, isLandscape]);
 
   // 适应父容器大小
-  const fitInParent = useCallback(() => {
+  useEffect(() => {
     screenRef.current?.fitInParent();
   }, []);
 
@@ -511,7 +504,6 @@ const Emulator: React.FC<EmulatorProps> = ({
         isMobile={isMobile}
         isLandscape={isLandscape}
       />
-
       {isMobile && (
         <div className="controls-container" ref={controlsContainerRef}>
           <div className="joystick-section">

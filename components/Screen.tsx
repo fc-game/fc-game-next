@@ -1,7 +1,12 @@
 "use client";
 
-import React, { useRef, useEffect, useImperativeHandle, forwardRef } from "react";
-import "./Screen.css";
+import React, {
+  useRef,
+  useEffect,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
+import "@/styles/Screen.css";
 
 const SCREEN_WIDTH = 256;
 const SCREEN_HEIGHT = 240;
@@ -27,62 +32,20 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>((props, ref) => {
   const buf8Ref = useRef<Uint8ClampedArray | null>(null);
   const buf32Ref = useRef<Uint32Array | null>(null);
 
-  useImperativeHandle(ref, () => ({
-    setBuffer: (buffer: number[]) => {
-      if (!buf32Ref.current) return;
-      
-      for (let y = 0; y < SCREEN_HEIGHT; ++y) {
-        for (let x = 0; x < SCREEN_WIDTH; ++x) {
-          const i = y * 256 + x;
-          // Convert pixel from NES BGR to canvas ABGR
-          buf32Ref.current[i] = 0xff000000 | buffer[i]; // Full alpha
-        }
-      }
-    },
-    
-    writeBuffer: () => {
-      if (!imageDataRef.current || !buf8Ref.current || !contextRef.current) return;
-      
-      imageDataRef.current.data.set(buf8Ref.current);
-      contextRef.current.putImageData(imageDataRef.current, 0, 0);
-    },
-    
-    fitInParent: () => {
-      if (!canvasRef.current) return;
-      
-      const canvas = canvasRef.current;
-      const parent = canvas.parentNode as HTMLElement;
-      if (!parent) return;
-      
-      const parentWidth = parent.clientWidth;
-      const parentHeight = parent.clientHeight;
-      const parentRatio = parentWidth / parentHeight;
-      const desiredRatio = 5 / 3;
-      
-      if (props.isMobile && props.isLandscape) {
-        canvas.style.width = `${window.innerWidth}px`;
-        canvas.style.height = `${window.innerHeight}px`;
-      } else {
-        if (desiredRatio < parentRatio) {
-          canvas.style.width = `${Math.round(parentHeight * desiredRatio)}px`;
-          canvas.style.height = `${parentHeight}px`;
-        } else {
-          canvas.style.width = `${parentWidth}px`;
-          canvas.style.height = `${Math.round(parentWidth / desiredRatio)}px`;
-        }
-      }
-    },
-  }));
-
   const initCanvas = () => {
     if (!canvasRef.current) return;
-    
+
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
     if (!context) return;
-    
+    context.imageSmoothingEnabled = false;
     contextRef.current = context;
-    imageDataRef.current = context.getImageData(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    imageDataRef.current = context.getImageData(
+      0,
+      0,
+      SCREEN_WIDTH,
+      SCREEN_HEIGHT,
+    );
 
     context.fillStyle = "black";
     // set alpha to opaque
@@ -104,9 +67,56 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>((props, ref) => {
     initCanvas();
   }, []);
 
+  useImperativeHandle(ref, () => ({
+    setBuffer: (buffer: number[]) => {
+      if (!buf32Ref.current) return;
+
+      for (let y = 0; y < SCREEN_HEIGHT; ++y) {
+        for (let x = 0; x < SCREEN_WIDTH; ++x) {
+          const i = y * 256 + x;
+          // Convert pixel from NES BGR to canvas ABGR
+          buf32Ref.current[i] = 0xff000000 | buffer[i]; // Full alpha
+        }
+      }
+    },
+
+    writeBuffer: () => {
+      if (!imageDataRef.current || !buf8Ref.current || !contextRef.current)
+        return;
+
+      imageDataRef.current.data.set(buf8Ref.current);
+      contextRef.current.putImageData(imageDataRef.current, 0, 0);
+    },
+
+    fitInParent: () => {
+      if (!canvasRef.current) return;
+
+      const canvas = canvasRef.current;
+      const parent = canvas.parentNode as HTMLElement;
+      if (!parent) return;
+
+      const parentWidth = parent.clientWidth;
+      const parentHeight = parent.clientHeight;
+      const parentRatio = parentWidth / parentHeight;
+      const desiredRatio = 5 / 3;
+
+      if (props.isMobile && props.isLandscape) {
+        canvas.style.width = `${window.innerWidth}px`;
+        canvas.style.height = `${window.innerHeight}px`;
+      } else {
+        if (desiredRatio < parentRatio) {
+          canvas.style.width = `${Math.round(parentHeight * desiredRatio)}px`;
+          canvas.style.height = `${parentHeight}px`;
+        } else {
+          canvas.style.width = `${parentWidth}px`;
+          canvas.style.height = `${Math.round(parentWidth / desiredRatio)}px`;
+        }
+      }
+    },
+  }));
+
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!props.onMouseDown || !canvasRef.current) return;
-    
     // Make coordinates unscaled
     const scale = SCREEN_WIDTH / parseFloat(canvasRef.current.style.width);
     const rect = canvasRef.current.getBoundingClientRect();
@@ -117,7 +127,6 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>((props, ref) => {
 
   const screenshot = () => {
     if (!canvasRef.current) return null;
-    
     const img = new Image();
     img.src = canvasRef.current.toDataURL("image/png");
     return img;
@@ -130,12 +139,9 @@ const Screen = forwardRef<ScreenHandle, ScreenProps>((props, ref) => {
       height={SCREEN_HEIGHT}
       onMouseDown={handleMouseDown}
       onMouseUp={props.onMouseUp}
-      style={{ width: "100vw", height: "100vh" }}
       ref={canvasRef}
     />
   );
 });
-
-Screen.displayName = 'Screen';
 
 export default Screen;

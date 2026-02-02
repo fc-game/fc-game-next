@@ -1,39 +1,57 @@
 export default class Speakers {
-  private audioCtx: AudioContext;
-  private scriptNode: ScriptProcessorNode;
-  private buffer: number[] = [];
+  private ctx: AudioContext;
+  private processor: ScriptProcessorNode;
+  private bufferL: number[] = [];
+  private bufferR: number[] = [];
+  private readonly BUFFER_SIZE = 1024;
 
   constructor() {
-    this.audioCtx = new AudioContext({ sampleRate: 44100 });
+    this.ctx = new AudioContext({ sampleRate: 44100 });
 
-    this.scriptNode = this.audioCtx.createScriptProcessor(2048, 0, 1);
-    this.scriptNode.onaudioprocess = (e) => {
-      const out = e.outputBuffer.getChannelData(0);
-      for (let i = 0; i < out.length; i++) {
-        out[i] = this.buffer.length ? this.buffer.shift()! : 0;
+    this.processor = this.ctx.createScriptProcessor(this.BUFFER_SIZE, 0, 2);
+
+    this.processor.onaudioprocess = (e) => {
+      const outL = e.outputBuffer.getChannelData(0);
+      const outR = e.outputBuffer.getChannelData(1);
+
+      for (let i = 0; i < outL.length; i++) {
+        outL[i] = this.bufferL.shift() ?? 0;
+        outR[i] = this.bufferR.shift() ?? 0;
       }
     };
 
-    this.scriptNode.connect(this.audioCtx.destination);
+    this.processor.connect(this.ctx.destination);
   }
 
-  writeSample(sample: number) {
-    this.buffer.push(sample);
-  }
-
-  getBufferedSamples() {
-    return this.buffer.length;
+  pushSample(left: number, right: number) {
+    this.bufferL.push(left);
+    this.bufferR.push(right);
   }
 
   getSampleRate() {
-    return this.audioCtx.sampleRate;
+    if (!window.AudioContext) {
+      return 44100;
+    }
+    let myCtx = new window.AudioContext();
+    let sampleRate = myCtx.sampleRate;
+    myCtx.close();
+    return sampleRate;
+  }
+
+  resume() {
+    this.ctx.resume();
+  }
+
+  destroy() {
+    this.processor.disconnect();
+    this.ctx.close();
   }
 
   start() {
-    this.audioCtx.resume();
+    this.ctx.resume();
   }
 
   stop() {
-    this.audioCtx.suspend();
+    this.ctx.suspend();
   }
 }

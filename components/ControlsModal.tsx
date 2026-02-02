@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Controller } from "jsnes";
 import ControlMapperRow from "./ControlMapperRow";
 import { KEYS } from "./KeyboardController";
-import "./ControlsModal.css";
+import "@/styles/ControlsModal.css";
 
 /* ---------- types ---------- */
 
