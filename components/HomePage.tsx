@@ -30,16 +30,12 @@ declare global {
 const HomePage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const pageSize = 10;
-
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
   const [totalDatas, setTotalDatas] = useState<GameData[]>([]);
   const [searchDatas, setSearchDatas] = useState<GameData[]>([]);
   const [currentPageDatas, setCurrentPageDatas] = useState<GameData[]>([]);
-
   const [searchContent, setSearchContent] = useState("");
 
   /* ================== 拖拽 ================== */
