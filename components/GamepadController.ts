@@ -84,7 +84,7 @@ export default class GamepadController {
 
     const gamepads = (navigator.getGamepads
       ? navigator.getGamepads()
-      : navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []) as Gamepad[];
+      : (navigator as any).webkitGetGamepads ? (navigator as any).webkitGetGamepads() : []) as Gamepad[];
 
     const usedPlayers: number[] = [];
 
@@ -246,7 +246,7 @@ export default class GamepadController {
       return { stop: () => {} };
     }
 
-    if (!(navigator.getGamepads || navigator.webkitGetGamepads)) {
+    if (!(navigator.getGamepads || (navigator as any).webkitGetGamepads)) {
       return { stop: () => {} };
     }
 

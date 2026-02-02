@@ -34,11 +34,11 @@ interface Keys {
 }
 
 interface ControlsModalProps {
-  gamepadConfig: GamepadFullConfig | null;
+  gamepadConfig?: GamepadFullConfig | null;
   keys: Keys;
-  promptButton: (cb: ((info: GamepadButton) => void) | null) => void;
+  promptButton?: (cb: ((info: GamepadButton) => void) | null) => void;
   setKeys: (keys: Keys) => void;
-  setGamepadConfig: (config: GamepadFullConfig) => void;
+  setGamepadConfig?: (config: GamepadFullConfig) => void;
   isOpen: boolean;
   toggle: () => void;
 }
@@ -109,7 +109,7 @@ const ControlsModal: React.FC<ControlsModalProps> = ({
       setCurrentButton(null);
       setCurrentPromptButton(-1);
       setModified(true);
-      promptButton(null);
+      if (promptButton) promptButton(null);
     },
     [currentButton, keys, promptButton],
   );
@@ -156,7 +156,7 @@ const ControlsModal: React.FC<ControlsModalProps> = ({
       setCurrentButton(null);
       setCurrentPromptButton(-1);
       setModified(true);
-      promptButton(null);
+      if (promptButton) promptButton(null);
     },
     [currentButton, promptButton],
   );
@@ -171,7 +171,7 @@ const ControlsModal: React.FC<ControlsModalProps> = ({
     (btn: [number, number]) => {
       setCurrentButton(btn);
       setCurrentPromptButton(btn[1]);
-      promptButton(handleGamepadButtonDown);
+      if (promptButton) promptButton(handleGamepadButtonDown);
     },
     [promptButton, handleGamepadButtonDown],
   );
@@ -189,9 +189,9 @@ const ControlsModal: React.FC<ControlsModalProps> = ({
     return () => {
       if (modified) {
         setKeys(keys);
-        setGamepadConfig(gamepadConfig);
+        if (setGamepadConfig) setGamepadConfig(gamepadConfig);
       }
-      promptButton(null);
+      if (promptButton) promptButton(null);
     };
   }, [modified, keys, gamepadConfig, setKeys, setGamepadConfig, promptButton]);
 

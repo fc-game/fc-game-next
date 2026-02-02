@@ -41,6 +41,15 @@ declare module "jsnes" {
 
     /** 按键抬起 */
     buttonUp(player: number, button: number): void;
+
+    /** 按键按下（Zapper） */
+    zapperMove(x: number, y: number): void;
+
+    /** 按键按下（Zapper） */
+    zapperFireDown(): void;
+
+    /** 按键抬起（Zapper） */
+    zapperFireUp(): void;
   }
 
   /* =====================
