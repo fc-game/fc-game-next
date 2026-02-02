@@ -10,6 +10,7 @@ import KeyboardController from "@/components/KeyboardController";
 import "@/styles/Emulator.css";
 
 interface EmulatorProps {
+  ref?: React.Ref<HTMLElement>;
   romData: ArrayBuffer | string;
   paused?: boolean;
   isMobile?: boolean;
