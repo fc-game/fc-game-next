@@ -14,6 +14,14 @@ const ListPage = (props: any) => {
   const [searchContent, setSearchContent] = useState(null);
   const searchInputRef: any = useRef(null);
 
+  const updatePageQuery = (page: number) => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("page", String(page));
+    const next = `${url.pathname}?${url.searchParams.toString()}`;
+    window.history.replaceState(null, "", next);
+  };
+
   const handleDragOver = (e: any) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
@@ -26,7 +34,7 @@ const ListPage = (props: any) => {
       : e.dataTransfer.files[0];
 
     RomLibrary.save(file).then((rom) => {
-      props.history.push({ pathname: "run/local-" + rom.hash });
+      props.history.push({ pathname: "/run/local-" + rom.hash });
     });
   };
 
@@ -80,7 +88,7 @@ const ListPage = (props: any) => {
 
     sessionStorage.setItem("currentPage", String(newCurrentPage));
     setCurrentPage(newCurrentPage);
-    props.history.push({ search: "?page=" + newCurrentPage });
+    updatePageQuery(newCurrentPage);
     showPage(newCurrentPage);
   };
 
@@ -143,7 +151,7 @@ const ListPage = (props: any) => {
     }
 
     sessionStorage.setItem("currentPage", "1");
-    props.history.push({ search: "?page=1" });
+    updatePageQuery(1);
 
     setSearchContent(searchContentValue);
     setSearchDatas(newSearchDatas);
@@ -220,7 +228,7 @@ const ListPage = (props: any) => {
         initialCurrentPage = page;
       }
     }
-    props.history.push({ search: "?page=" + initialCurrentPage });
+    updatePageQuery(initialCurrentPage);
 
     const first = (initialCurrentPage - 1) * pageSize + 1;
 
@@ -241,7 +249,7 @@ const ListPage = (props: any) => {
     setCurrentPage(initialCurrentPage);
     setCurrentPageDatas(initialCurrentPageDatas);
     setTotalPages(initialTotalPages);
-  }, [props.location.pathname, pageSize]);
+  }, [pageSize]);
 
   useEffect(() => {
     showPage(currentPage);
