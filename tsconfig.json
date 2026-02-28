@@ -18,10 +18,11 @@
         "name": "next"
       }
     ],
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*", "../*", "../../*", "../../../*", "app/*"],
-    }
+      "@/*": ["./*", "../*"]
+    },
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "types": ["node"]
   },
   "include": [
     "next-env.d.ts",
