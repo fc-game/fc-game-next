@@ -1,4 +1,4 @@
-import RunOnlyClient from "../RunOnlyClient";
+import RunOnlyClient from "@/src/app/run/RunOnlyClient";
 import config from "@/src/config";
 
 type RunSlugPageProps = {
